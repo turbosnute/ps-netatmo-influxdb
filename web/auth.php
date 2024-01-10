@@ -25,7 +25,7 @@
         die("Environment variable 'client_secret' must be set...");
     }
 
-    $redirect_uri = '';
+    $redirect_uri = $_SERVER['REQUEST_SCHEME']."://".$_SERVER['HTTP_HOST']."/auth.php";
 
     echo "<p>";
     echo "<strong>uri: </strong>".$uri."<br />";
@@ -41,11 +41,11 @@
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
     curl_setopt($ch, CURLOPT_POSTFIELDS, array(
-        'code' => $code,
+        'grant_type' => 'authorization_code',
         'client_id' => $client_id,
         'client_secret' => $client_secret,
+        'code' => $code,
         'redirect_uri' => $redirect_uri,
-        'grant_type' => 'authorization_code',
         'scope' => 'read_station'
     ));
         
