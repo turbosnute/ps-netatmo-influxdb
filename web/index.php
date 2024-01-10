@@ -13,10 +13,10 @@
         </header>
 
         <main>
-            <p>...</p>
+            <p><?php echo 'My username is ' .$_ENV["USER"] . '!'; ?></p>
             <?php
-                $client_id = '';
-                $redirect_uri = 'http://localhost:8088/auth.php';
+                $client_id = $_ENV['client_id'];
+                $redirect_uri = $redirect_uri =  $_SERVER['REQUEST_SCHEME']."://".$_SERVER['HTTP_HOST']."/auth.php";
                 $scope = 'read_station';
                 $url = "https://api.netatmo.com/oauth2/authorize?client_id=".$client_id."&redirect_uri=".$redirect_uri."&scope=".$scope."&state=jieoadjsoadoijeeer134";
                 //echo $url;
