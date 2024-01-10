@@ -1,5 +1,4 @@
 FROM php:8.3-apache-bullseye
-COPY ./web /var/www/html
 RUN apt-get update && \
     apt-get install -y wget && \
     . /etc/os-release && \
@@ -10,3 +9,4 @@ RUN apt-get update && \
     apt-get install -y powershell && \
     rm -rf /var/lib/apt/lists/* /usr/share/doc /usr/share/man && \
     apt-get clean
+COPY ./web /var/www/html
