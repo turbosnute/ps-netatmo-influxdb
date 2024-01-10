@@ -25,7 +25,6 @@
         die("Environment variable 'client_secret' must be set...");
     }
 
-    $code = $code;
     $redirect_uri = '';
 
     echo "<p>";
