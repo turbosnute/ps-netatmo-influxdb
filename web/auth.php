@@ -1,6 +1,7 @@
 <?php
     $uri = 'https://api.netatmo.com/oauth2/token';
 
+    print_r($_GET);
     if (isset($_GET['code'])) {
         $code = $_GET['code'];  
     } else {
@@ -31,6 +32,7 @@
     echo "<strong>code: </strong".$code."<br />";
     echo "<strong>client_id: </strong>".$client_id."<br />";
     echo "<strong>client_secret: </strong>".$client_secret."<br />";
+    echo "<strong>state: </strong>".$state."<br />";
     echo "</p>";
     /*
     $ch = curl_init();
