@@ -1,7 +1,5 @@
 <?php
     $uri = 'https://api.netatmo.com/oauth2/token';
-    $grant_type = 'authorization_code';
-    $scope = 'read_station';
 
     if (isset($_GET['code'])) {
         $code = $_GET['code'];  
@@ -40,13 +38,14 @@
         'client_id' => $client_id,
         'client_secret' => $client_secret,
         'redirect_uri' => $redirect_uri,
-        'grant_type' => 'authorization_code'
+        'grant_type' => 'authorization_code',
+        'scope' => 'read_station'
     ));
         
     $data = curl_exec($ch);
     
     var_dump($data);
-    
+
     /*
 HTTP/1.1 200 OK
     Content-Type: application/json;charset=UTF-8
