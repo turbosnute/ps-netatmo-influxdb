@@ -33,7 +33,7 @@
     echo "<strong>client_id: </strong>".$client_id."<br />";
     echo "<strong>client_secret: </strong>".$client_secret."<br />";
     echo "</p>";
-
+    /*
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $uri);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
@@ -51,7 +51,7 @@
     $data = curl_exec($ch);
     
     var_dump($data);
-
+    */
     /*
 HTTP/1.1 200 OK
     Content-Type: application/json;charset=UTF-8
