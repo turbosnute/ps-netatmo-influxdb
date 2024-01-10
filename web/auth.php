@@ -29,7 +29,7 @@
     $redirect_uri = '';
 
     echo "<p>";
-    echo "<strong>code: </strong".$code."<br />";
+    echo "<strong>code: </strong>".$code."<br />";
     echo "<strong>client_id: </strong>".$client_id."<br />";
     echo "<strong>client_secret: </strong>".$client_secret."<br />";
     echo "<strong>state: </strong>".$state."<br />";
