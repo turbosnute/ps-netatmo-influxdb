@@ -28,6 +28,12 @@
     $code = $code;
     $redirect_uri = '';
 
+    echo "<p>";
+    echo "<strong>code: </strong".$code."<br />";
+    echo "<strong>client_id: </strong>".$client_id."<br />";
+    echo "<strong>client_secret: </strong>".$client_secret."<br />";
+    echo "</p>";
+
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $uri);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
