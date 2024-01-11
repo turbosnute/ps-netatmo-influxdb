@@ -50,11 +50,6 @@
     ));
         
     $data = curl_exec($ch);
-    
-    if (!file_exists("/config/")) {
-        mkdir("/config/", 0700);
-    }
-
     $file = fopen("/config/conf.json", "w") or die("Unable to open file!");
     fwrite($file, $data);
     fclose($file);
