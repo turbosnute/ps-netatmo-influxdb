@@ -50,7 +50,7 @@ function Invoke-RefreshToken {
         Invoke-RestMethod @refresh_args
         
         #
-        # Update config here.
+        # Update or clear (if token is too old) config here.
         #
     }
     
