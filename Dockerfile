@@ -10,3 +10,4 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/* /usr/share/doc /usr/share/man && \
     apt-get clean
 COPY ./web /var/www/html
+RUN mkdir /config/
