@@ -51,7 +51,7 @@
         
     $data = curl_exec($ch);
     
-    if (!file_exists("/config/"))  {
+    if (!file_exists("/config/")) {
         mkdir("/config/", 0700);
     }
 
