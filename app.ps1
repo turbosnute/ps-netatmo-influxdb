@@ -36,14 +36,22 @@ function Invoke-RefreshToken {
             client_secret = $client_secret
         }
 
+        $headers = @{
+            Authorization = "Bearer $($config.access_token)"
+        }
+
         $refresh_args = @{
-            uri = 'https://api.netatmo.com/oauth2/token'
-            method = 'Post'
-            body = $refresh_payload
-            ContentType = 'application/json'
+            Uri = 'https://api.netatmo.com/oauth2/token'
+            Method = 'Post'
+            Body = $refresh_payload
+            Headers = $headers
         }
 
         Invoke-RestMethod @refresh_args
+        
+        #
+        # Update config here.
+        #
     }
     
     end {
@@ -66,10 +74,3 @@ if ($configExists) {
 } else {
     # No config
 }
-<#
-https://api.netatmo.com/oauth2/authorize?
-    client_id=[YOUR_APP_ID]
-    &redirect_uri=[YOUR_REDIRECT_URI]
-    &scope=[SCOPE_SPACE_SEPARATED]
-    &state=[SOME_ARBITRARY_BUT_UNIQUE_STRING]
-#>
