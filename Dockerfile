@@ -10,6 +10,8 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/* /usr/share/doc /usr/share/man && \
     apt-get clean
 COPY ./web /var/www/html
+RUN mkdir /app/
+COPY app.ps1 /app/
 RUN mkdir /config/
 RUN chown www-data /config/
 RUN chmod 700 /config/
