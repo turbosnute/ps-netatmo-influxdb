@@ -51,7 +51,11 @@
         
     $data = curl_exec($ch);
     
-    var_dump($data);
+    //var_dump($data);
+    $file = fopen("/config/conf.json", "w") or die("Unable to open file!");
+    fwrite($file, $data);
+    fclose($file);
+
     
     /*
 HTTP/1.1 200 OK
