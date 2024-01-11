@@ -11,3 +11,5 @@ RUN apt-get update && \
     apt-get clean
 COPY ./web /var/www/html
 RUN mkdir /config/
+RUN cown www-data /config/
+RUN chmod 700 /config/
