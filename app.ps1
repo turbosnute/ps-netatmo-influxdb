@@ -3,6 +3,7 @@ $client_secret = $env:netatmo_client_secret
 
 $scope = "read_station"
 $configPath = "/config/conf.json"
+$client_config_path = "/config/client.json"
 
 #
 # Functions
