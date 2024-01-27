@@ -50,21 +50,7 @@
     ));
         
     $data = curl_exec($ch);
-    $file = fopen("/config/conf.json", "w") or die("Unable to open file!");
+    $file = fopen("/config/conf.json", "w") or die("Unable to open or create config file! (/config/conf.json)");
     fwrite($file, $data);
     fclose($file);
-
-    
-    /*
-HTTP/1.1 200 OK
-    Content-Type: application/json;charset=UTF-8
-    Cache-Control: no-store
-    Pragma: no-cache
-
-    {
-    "access_token":"2YotnFZFEjr1zCsicMWpAA",
-    "expires_in":10800,
-    "refresh_token":"tGzv3JOkF0XG5Qx2TlKWIA",
-    }
-    */
 ?>
