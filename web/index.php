@@ -1,12 +1,16 @@
 <?php
     /* Check if client config is available (in config file). */
     $client_config_path = "/config/client.json";
-    $file = fopen($client_config_path, "w") or die("Unable to open or create config file! ($client_config_path)");
+    
+    if (!file_exists($client_config_path)) {
+        file_put_contents($client_config_path, '');
+    }
+    $file = fopen($client_config_path, "r") or die("Unable to open or create config file! ($client_config_path)");
     $filesize = filesize($client_config_path);
 
     if ($filesize > 0) {
         $client_config_data = fread($file,$filesize);
-        $client_config = json_decode($client_config_data);
+        $client_config = json_decode($client_config_data, true);
     } else {
         // probably no config
         $client_config = null;
@@ -42,21 +46,35 @@
 
         <main>
             <h2>Client Config</h2>
-            <form>
+            <form method="POST" action="save_client_config.php">
                 <label for="client_id">Client Id:</label><input type="text" id="client_id" name="client_id" value="<?php echo $client_id; ?>"><br />
                 <label for="client_secret">Client Secret:</label><input type="text" id="client_secret" name="client_secret" value="<?php echo $client_secret; ?>"><br />
-                <input type="submit" value="Update Config">
+                <input type="submit" value="Update Config" <?php // if (($client_id != "") && ($client_secret != "")) { echo "disabled"; } ?>>
             </form>
 
             <?php
                 $state = rand(100000000,900000000);
-                if ($client_config != null) {
+                if (($client_config != null) && (!file_exists('/config/conf.json'))) {
                     $client_id = $client_config['client_id'];
                     $redirect_uri =  $_SERVER['REQUEST_SCHEME']."://".$_SERVER['HTTP_HOST']."/auth.php";
                     $scope = 'read_station';
-                    $url = "https://api.netatmo.com/oauth2/authorize?client_id=".$client_id."&redirect_uri=".$redirect_uri."&scope=".$scope."&state=$state";
+                    #$url = "https://api.netatmo.com/oauth2/authorize?client_id=".$client_id."&redirect_uri=".$redirect_uri."&scope=".$scope."&state=$state";
                     ?>
-                    <a class="button" href="<?php echo $url; ?>">Authenticate</a>
+                    <form action="https://api.netatmo.com/oauth2/authorize" method="get">
+                    <!-- <a class="button" id="authbutton" href="<?php echo $url; ?>" onClick="this.disabled=true; this.value='Redirecting...';">Authenticate</a>-->
+                        <input type="hidden" id="client_id" name="client_id" value="<?php echo $client_id; ?>" />
+                        <input type="hidden" id="redirect_uri" name="redirect_uri" value="<?php echo $redirect_uri; ?>" />
+                        <input type="hidden" id="scope" name="scope" value="<?php echo $scope; ?>" />
+                        <input type="hidden" id="state" name="state" value="<?php echo $state; ?>" />
+                        <input type="button" id="authbutton" onClick="this.disabled=true; this.value='Redirecting (please wait)...'; this.form.submit()" value="Authenticate Netatmo" />
+                    </form>
+                    <?php
+                } elseif (file_exists('/config/conf.json')) {
+                    ?>
+                    <p>
+                        <b>Netatmo: <span style="color:#6dc421;">Authenticated</span></b><br />
+                        <a class="button" href="deleteauth.php">Clear Authentication</a>
+                    </p>
                     <?php
                 } else {
                     ?>
