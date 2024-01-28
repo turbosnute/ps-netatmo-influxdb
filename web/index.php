@@ -27,6 +27,46 @@
     if (isset($client_config['client_secret'])) {
         $client_secret = $client_config['client_secret'];
     }
+
+    /* InfluxDB Config */
+    $db_config_path = "/config/influxdb.json";
+
+    $db_host = "";
+    $db_org = "";
+    $db_token = "";
+    $db_bucket = "";
+
+    // if file doesn't exist, create it:
+    if (!file_exists($db_config_path)) {
+        file_put_contents($db_config_path, '');
+    }
+    $file = fopen($db_config_path, "r") or die("Unable to open or create config file! ($db_config_path)");
+    $filesize = filesize($db_config_path);
+    if ($filesize > 0) {
+        $db_config_data = fread($file,$filesize);
+        $db_config = json_decode($db_config_data, true);
+    } else {
+        // probably no config
+        $db_config = null;
+    }
+    fclose($file);
+
+    if (isset($db_config['db_host'])) {
+        $db_host = $db_config['db_host'];
+    }
+
+    if (isset($db_config['db_org'])) {
+        $db_org = $db_config['db_org'];
+    }
+
+    if (isset($db_config['db_bucket'])) {
+        $db_bucket = $db_config['db_bucket'];
+    }
+
+    if (isset($db_config['db_token'])) {
+        $db_token = $db_config['db_token'];
+    }
+
 ?>
 
 
@@ -45,7 +85,7 @@
         </header>
 
         <main>
-            <h2>Client Config</h2>
+            <h2>Netatmo Config</h2>
             <form method="POST" action="save_client_config.php">
                 <label for="client_id">Client Id:</label><input type="text" id="client_id" name="client_id" value="<?php echo $client_id; ?>"><br />
                 <label for="client_secret">Client Secret:</label><input type="text" id="client_secret" name="client_secret" value="<?php echo $client_secret; ?>"><br />
@@ -89,10 +129,52 @@
                     </p>
                     <?php
                 }
+                ?>
 
-                //echo $url;
-            ?>
-            
+                <h2>InfluxDB Config</h2>
+                <form method="POST" action="save_influxdb_config.php">
+                    <label for="db_host">Host:</label><input type="text" id="db_host" name="db_host" value="<?php echo "$db_host";?>"><i> Usually servername:8086</i><br />
+                    <label for="db_org">Org Name:</label><input type="text" id="db_org" name="db_org" value="<?php echo "$db_org"; ?>"><br />
+                    <label for="db_bucket">Bucket:</label><input type="text" id="db_bucket" name="db_bucket" value="<?php echo "$db_bucket"; ?>"><br />
+                    <label for="db_token">Token:</label><input type="text" id="db_token" name="db_token" value="<?php echo "$db_token"; ?>"><br />
+                    <input type="button" value="Test Connection" /> <input type="submit" value="Save InfluxDB Config" />
+                </form>
+
+                <?php
+                    if ($db_config == null) {
+                        ?>
+                <h3>Tip: InfluxDB Org Name</h3>
+                <p>This describes one way to find the org name.</p>
+                <ul>
+                        <li>Browse to the influxdb WebUI. http://server:8086</li>
+                        <li>Click on the org logo, located in the menu to the left directly under the influxdb logo</li>
+                        <li>Choose "About"</li>
+                        <li>Copy the Org name</li>
+                        <li>If you don't have configured a org, you can create it from the same meny</li>
+                </ul>
+                <h3>Tip: InfluxDB Create New Bucket</h3>
+                <p>This describes one way to create a new bucket in Influxdb 2.
+                <ul>
+                    <li>Browse to the influxdb WebUI. http://server:8086</li>
+                    <li>In the menu to the left, under the Upload-symbol, choose "Buckets"</li>
+                    <li>Click "Cretae Bucket"</li>
+                    <li>Choose a name and click "Create"</li>
+                </ul>
+                </p>
+                <h3>Tip: InfluxDB Create Token</h3>
+                <p>This describes one way to create a token in Influxdb 2.
+                <ul>
+                    <li>Browse to the influxdb WebUI. http://server:8086</li>
+                    <li>In the menu to the left, under the Upload-symbol, choose "API Tokens"</li>
+                    <li>Click the dowpdown arrow on the "Generate API Token" button</li>
+                    <li>Choose "Custom API Token"</li>
+                    <li>Check Read and Write on the bucket you want to use</li>
+                    <li>Click generate, and copy the token</li>
+                </ul>
+                </p>
+                        <?php
+                    }
+                ?>
         </main>
     </body>
 </html>
