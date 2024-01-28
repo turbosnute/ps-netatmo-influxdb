@@ -1,6 +1,3 @@
-$client_id = $env:netatmo_client_id
-$client_secret = $env:netatmo_client_secret
-
 $scope = "read_station"
 $configPath = "/config/conf.json"
 $client_config_path = "/config/client.json"
@@ -19,26 +16,26 @@ function Invoke-RefreshToken {
     [CmdletBinding()]
     [OutputType([int])]
     param(
-        [Parameter(Mandatory=$true)][string]$client_id,
-        [Parameter(Mandatory=$true)][string]$client_secret,
-        [Parameter(Mandatory=$true)][string]$configPath
+        [Parameter(Mandatory=$true)][string]$configPath,
+        [Parameter(Mandatory=$true)][string]$client_config_path
     )
     
     begin {
+        $tokens = Get-Content -Path $ConfigPath | ConvertFrom-Json
+        $client = Get-Content -Path $client_config_path | ConvertFrom-Json
     }
     
     process {
-        $config = Get-Content -Path $configPath | ConvertFrom-Json
 
         $refresh_payload = @{
             grant_type = "refresh_token"
-            refresh_token = $config.refresh_token
-            client_id = $client_id
-            client_secret = $client_secret
+            refresh_token = $tokens.refresh_token
+            client_id = $client.client_id
+            client_secret = $client.client_secret
         }
 
         $headers = @{
-            Authorization = "Bearer $($config.access_token)"
+            Authorization = "Bearer $($tokens.access_token)"
         }
 
         $refresh_args = @{
@@ -48,7 +45,9 @@ function Invoke-RefreshToken {
             Headers = $headers
         }
 
-        Invoke-RestMethod @refresh_args
+        $res = Invoke-RestMethod @refresh_args
+
+        $res | ConvertTo-Json | Out-File -encoding utf8 -Path $configPath
         
         #
         # Update or clear (if token is too old) config here.
@@ -62,11 +61,9 @@ function Invoke-RefreshToken {
 #
 # Check if config exists
 #
-
-$configExists = Test-Path -Path $configPath
-
-if ($configExists) {
-    $config = Get-Content $configPath | ConvertFrom-Json
+if ((Test-Path -Path $configPath) -and (Test-Path -Path $client_config_path)) {
+    $tokens = Get-Content -Path $ConfigPath | ConvertFrom-Json
+    $client = Get-Content -Path $client_config_path | ConvertFrom-Json
 
     #
     # Before the loop(?). Try to refresh token.
@@ -74,4 +71,5 @@ if ($configExists) {
 
 } else {
     # No config
+    Write-Host "Can't find config. Go to http://server:8088/ and complete setup."
 }
