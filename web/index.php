@@ -77,6 +77,30 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>PS Netatmo InfluxDB</title>
         <link rel="stylesheet" href="simple.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script>
+            $(document).ready(function(){
+                $("#testdb").click(function(){
+                            var db_host = $("#db_host").val();
+                            var db_org = $("#db_org").val();
+                            var db_bucket = $("#db_bucket").val();
+                            var db_token = $("#db_token").val();
+                            var url = "test-influxdb.php?server=" + db_host + "&org=" + db_org + "&bucket=" + db_bucket + "&token=" + db_token;
+                            
+                            $.ajax({
+                                url: url,
+                                type: "GET",
+                                dataType: "text",
+                                success: function(response){
+                                    $("#testresult").text(response);
+                                },
+                                error: function(xhr, status, error){
+                                    console.error("Error:", error);
+                                }
+                            });
+                        });
+                });
+        </script>
     </head>
 
     <body>
@@ -137,7 +161,7 @@
                     <label for="db_org">Org Name:</label><input type="text" id="db_org" name="db_org" value="<?php echo "$db_org"; ?>"><br />
                     <label for="db_bucket">Bucket:</label><input type="text" id="db_bucket" name="db_bucket" value="<?php echo "$db_bucket"; ?>"><br />
                     <label for="db_token">Token:</label><input type="text" id="db_token" name="db_token" value="<?php echo "$db_token"; ?>"><br />
-                    <input type="button" value="Test Connection" /> <input type="submit" value="Save InfluxDB Config" />
+                    <input type="button" id="testdb" name="testdb" value="Test Connection" onclick="testDB()" /> <input type="submit" value="Save InfluxDB Config" />
                     <span id="testresult" name="testresult"></span>
                 </form>
 

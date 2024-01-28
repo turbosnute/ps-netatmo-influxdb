@@ -36,7 +36,7 @@ foreach ($data as $point) {
     $lines .= sprintf("%s,%s %s %s\n", $point['measurement'], http_build_query($point['tags']), http_build_query($point['fields']), $point['timestamp']);
 }
 
-echo "$url/api/v2/write?org=$org&bucket=$bucket&precision=ns<br />";
+//echo "$url/api/v2/write?org=$org&bucket=$bucket&precision=ns<br />";
 // Prepare cURL request
 $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, "$url/api/v2/write?org=$org&bucket=$bucket&precision=ns");
@@ -56,9 +56,9 @@ curl_close($ch);
 if ($status_code === 204) {
     echo "Success: Got write access to InfluxDB.";
 } else if ($status_code === 404) {
-    echo "Error: Failed with status code: 404. Be sure that the bucket and exists."
+    echo "Error: Failed with status code: 404. Be sure that the bucket and exists.";
 } else if ($status_code === 401) {
-    echo "Error: Unauthorized. Is the token correct and does it have write access to the bucket '$bucket'"
+    echo "Error: Unauthorized. Is the token correct and does it have write access to the bucket '$bucket'";
 } else {
     echo "Error: Failed to write data to InfluxDB. Status code: $status_code";
 }
