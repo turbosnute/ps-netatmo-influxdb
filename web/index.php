@@ -138,6 +138,7 @@
                     <label for="db_bucket">Bucket:</label><input type="text" id="db_bucket" name="db_bucket" value="<?php echo "$db_bucket"; ?>"><br />
                     <label for="db_token">Token:</label><input type="text" id="db_token" name="db_token" value="<?php echo "$db_token"; ?>"><br />
                     <input type="button" value="Test Connection" /> <input type="submit" value="Save InfluxDB Config" />
+                    <span id="testresult" name="testresult"></span>
                 </form>
 
                 <?php
