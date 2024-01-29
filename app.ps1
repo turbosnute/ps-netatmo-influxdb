@@ -27,6 +27,9 @@ function Invoke-RefreshToken {
     
     process {
 
+        $env:netatmo_token = $tokens.token
+        $env:netatmo_refresh_token = $tokens.refresh_token
+
         $refresh_payload = @{
             grant_type = "refresh_token"
             refresh_token = $tokens.refresh_token
@@ -103,13 +106,124 @@ function Get-WeatherData {
 
 <#
 .SYNOPSIS
+    Checks if an object is numeric.
+
+.DESCRIPTION
+    This function determines whether the provided object is numeric. It checks if the object
+    is of type Double, Int32, Int64, or if it's a string consisting only of numbers.
+
+.PARAMETER Object
+    The object to be checked for numeric type.
+
+.EXAMPLE
+    Is-Numeric 42
+    # Output: True
+
+.EXAMPLE
+    Is-Numeric "123.5"
+    # Output: True
+
+.EXAMPLE
+    Is-Numeric "abc"
+    # Output: False
+#>
+function Is-Numeric {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+        [Object]$Object
+    )
+
+    $Object -is [System.Double] -or $Object -is [System.Int32] -or $Object -is [System.Int64] -or ($Object -match '^\d+(\.\d+)?$')
+}
+
+<#
+.SYNOPSIS
+    Takes in weather data mesurements and writes it to InfluxDB.
+.DESCRIPTION
+    Takes in weather data mesurements and writes it to InfluxDB.
+#>
+function Register-WeatherDataMesurement {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)][string]$module_id, 
+        [Parameter(Mandatory=$true)][string]$module_name,
+        [Parameter(Mandatory=$true)][string]$home_id,
+        [Parameter(Mandatory=$true)][string]$home_name,
+        [Parameter(Mandatory=$true)]$dashboard_data
+    )
+    
+    begin {
+    }
+    
+    process {
+        $timestamp = $dashboard_data.time_utc
+
+        if ($false -eq (is-numeric -object $timestamp)) {
+            # if timestamp is invalid, set the current time.
+            $timestamp = [int][Math]::Floor([DateTime]::UtcNow.Subtract([DateTime]::Parse("1970-01-01")).TotalSeconds) 
+        }
+
+        $timestamp = [int]$timestamp
+
+        $measurements = foreach ($property in $dashboard_data.PSObject.Properties) {
+            $name = $property.name
+            $value = $property.value
+
+            if (($name -notmatch "^(?:time|date)_") -and (Is-Numeric -Object $value)) {
+                $value = [Double]$value
+            } elseif ($name -eq 'time_utc') {
+                # time_utc can be skipped.
+                $name = $null
+            }
+
+            if ($null -ne $name) {
+                @{
+                    measurement = $name
+                    tags = @{
+                        'module_id' = $module_id
+                        'module_name' = $module_name
+                        'home_id' = $home_id
+                        'home_name' = $home_name
+                    }
+                    fields = @{
+                        value = $value
+                    }
+                    timestamp = $timestamp
+                }
+            }
+        }
+
+        # Convert data to InfluxDB Line Format
+        $lines = foreach($measurement in $measurements) {
+            $tags = foreach ($key in $measurement.tags.keys) {
+                "$key=$($measurement.tags.$key -replace ' ','\ ')" #escape spaces with \
+            }
+            $tags = $tags -join ','
+
+            $fields = foreach ($key in $measurement.fields.keys) {
+                "$key=$($measurement.fields.$key -replace ' ','\ ')" #escape spaces with \
+            }
+            $fields = $fields -join ','
+
+            # line
+            "$($measurement.measurement),$tags $fields $timestamp"
+        }
+
+    }
+    
+    end {
+    }
+}
+
+<#
+.SYNOPSIS
     Takes in weather data processes it and writes it to InfluxDB.
 .DESCRIPTION
     Takes in weather data processes it and writes it to InfluxDB.
 #>
 function Register-WeatherData {
     [CmdletBinding()]
-    [OutputType([int])]
     param(
         [Parameter(Mandatory=$true)][string]$weatherdata
     )
@@ -118,8 +232,33 @@ function Register-WeatherData {
     }
     
     process {
-        foreach ($device in $weatherdata.body.devices) {
-            
+        foreach ($station in $weatherdata.body.devices) {
+            <#
+                station_name
+                station_id
+                home_name
+                home_id
+                dashboard_data
+            #>
+
+            foreach ($module in $station.modules) {
+                <#
+                    battery_percent
+                    battery_vp
+                    dashboard_data
+                    data_type
+                    firmware
+                    last_message
+                    last_seen
+                    last_setup
+                    module_name
+                    reachable
+                    rf_status
+                    type
+                    _id
+                #>
+            }
+
         }
     }
     
