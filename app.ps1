@@ -96,7 +96,33 @@ function Get-WeatherData {
         }
 
         $data = Invoke-RestMethod -Uri $uri -Headers $headers
-        
+
+        $data
+    }   
+}
+
+<#
+.SYNOPSIS
+    Takes in weather data processes it and writes it to InfluxDB.
+.DESCRIPTION
+    Takes in weather data processes it and writes it to InfluxDB.
+#>
+function Register-WeatherData {
+    [CmdletBinding()]
+    [OutputType([int])]
+    param(
+        [Parameter(Mandatory=$true)][string]$weatherdata
+    )
+    
+    begin {
     }
     
+    process {
+        foreach ($device in $weatherdata.body.devices) {
+            
+        }
+    }
+    
+    end {
+    }
 }
