@@ -1,13 +1,11 @@
 FROM php:8.3-apache-bullseye
 RUN apt-get update && \
     apt-get install -y wget && \
-    ARCHY=`dpkg --print-architecture` && \
     mkdir /powershell && \
-    cd /powershell && \
-    wget -O powershell.tar.gz -q https://github.com/PowerShell/PowerShell/releases/download/v7.4.1/powershell-7.4.1-linux-$ARCHY.tar.gz && \
-    tar -xvf powershell.tar.gz && \
-    rm powershell.tar.gz && \
-    ln -s /powershell/pwsh /bin/pwsh && \
+    cd /powershell
+COPY install-pwsh.sh /powershell/
+RUN chmod 700 /powershell/install-pwsh.sh && \
+    /bin/sh /powershell/install-pwsh.sh && \
     rm -rf /var/lib/apt/lists/* /usr/share/doc /usr/share/man && \
     apt-get clean && \
     mkdir /app/ && \
