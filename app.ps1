@@ -73,3 +73,30 @@ if ((Test-Path -Path $configPath) -and (Test-Path -Path $client_config_path)) {
     # No config
     Write-Host "Can't find config. Go to http://server:8088/ and complete setup."
 }
+
+
+<#
+.SYNOPSIS
+    Gets weather data from the users Netatmo Weather Station.
+.DESCRIPTION
+    Gets weather data from the users Netatmo Weather Station.
+#>
+function Get-WeatherData {
+    [CmdletBinding()]
+    [OutputType([int])]
+    param(
+        [Parameter(Mandatory=$true)][string]$Token
+    )
+    
+    process {
+        $uri = "https://api.netatmo.com/api/getstationsdata?get_favorites=false"
+
+        $headers = @{
+            'Authorization' = "Bearer $Token"
+        }
+
+        $data = Invoke-RestMethod -Uri $uri -Headers $headers
+        
+    }
+    
+}
