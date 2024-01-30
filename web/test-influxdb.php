@@ -13,33 +13,19 @@ if (strpos($url, ':') === false) {
 
 // Sample data to write
 $data = [
-    [
-        "measurement" => "temperature",
-        "tags" => [
-            "location" => "New York"
-        ],
-        "fields" => [
-            "value" => 25.5
-        ],
-        "timestamp" => time() * 1000000000  // Convert to nanoseconds
+    "measurement" => "write-test",
+    "tags" => [
+        "tag-test" => "netatmo-influxdb"
     ],
-    [
-        "measurement" => "humidity",
-        "tags" => [
-            "location" => "New York"
-        ],
-        "fields" => [
-            "value" => 60
-        ],
-        "timestamp" => time() * 1000000000  // Convert to nanoseconds
-    ]
+    "fields" => [
+        "value" => 0.5
+    ],
+    "timestamp" => time() * 1000000000  // Convert to nanoseconds
 ];
 
 // Convert data to line protocol format
-$lines = '';
-foreach ($data as $point) {
-    $lines .= sprintf("%s,%s %s %s\n", $point['measurement'], http_build_query($point['tags']), http_build_query($point['fields']), $point['timestamp']);
-}
+$line = '';
+$line .= sprintf("%s,%s %s %s\n", $data['measurement'], http_build_query($data['tags']), http_build_query($data['fields']), $data['timestamp']);
 
 //echo "$url/api/v2/write?org=$org&bucket=$bucket&precision=ns<br />";
 // Prepare cURL request
@@ -47,7 +33,7 @@ $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, "$url/api/v2/write?org=$org&bucket=$bucket&precision=ns");
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_POST, true);
-curl_setopt($ch, CURLOPT_POSTFIELDS, $lines);
+curl_setopt($ch, CURLOPT_POSTFIELDS, $line);
 curl_setopt($ch, CURLOPT_HTTPHEADER, [
     "Authorization: Token $token",
 ]);
