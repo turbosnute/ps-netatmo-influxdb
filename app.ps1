@@ -55,6 +55,8 @@ function Invoke-RefreshToken {
         #
         # Update or clear (if token is too old) config here.
         #
+
+        $env:netatmo_token_lastRefreshDateTime = Get-Date
     }
     
     end {
