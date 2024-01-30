@@ -12,7 +12,8 @@ docker build -t "ps-netatmo-influxdb" .
 
 ## Run
 ```
-docker run -d -p 8800:80 -v /home/user/psnetatmo:/config --name "ps-netatmo-influxdb" ps-netatmo-influxdb 
+docker network create weather-net
+docker run -d -p 8800:80 -v psnetatmo:/config --name "ps-netatmo-influxdb" --network "weather-net" ps-netatmo-influxdb 
 ```
 
 ## Setup
@@ -26,6 +27,16 @@ This script utilizes the Netatmo API to access data. To authenticate with the AP
 3. **Retrieve Client ID and Client Secret:** After creating the application, you'll be provided with a Client ID and Client Secret.
 
 ### InfluxDB Setup
+If you don't have a InfluxDB server already you can run one in docker:
+```
+docker run -d --name=influxdb -p 8086:8086 --network "weather-net" -v influxdb-vol:/root/.influxdb2 influxdb:2.7.5
+```
+
+If you already have a influxdb container running. Make sure it can be contacted from the ps-netatmo-influxdb container. One way to do this is to join it to the same network:
+```
+docker network connect "weather-net" influxdb
+```
+
 ...
 ### PS Netatmo InfluxDB Config
 ...

@@ -6,6 +6,11 @@ $org = $_GET['org'];
 $bucket = $_GET['bucket'];
 $token = $_GET['token'];
 
+// adds default influxdb port if the url doesn't contain it.
+if (strpos($url, ':') === false) {
+    $url .= ':8086';
+}
+
 // Sample data to write
 $data = [
     [
@@ -59,6 +64,10 @@ if ($status_code === 204) {
     echo "Error: Failed with status code: 404. Be sure that the bucket and exists.";
 } else if ($status_code === 401) {
     echo "Error: Unauthorized. Is the token correct and does it have write access to the bucket '$bucket'";
+} else if (str_contains($url, 'localhost') || str_contains($url, '127.0.0.1')) {
+    echo "Error: No Response. Your db hostname points to the container itself and not a InfluxDB container/server.";
+} else if ($status_code === 0) {
+    echo "Error: No Response. Status code: $status_code";
 } else {
     echo "Error: Failed to write data to InfluxDB. Status code: $status_code";
 }
