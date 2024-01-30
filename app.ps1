@@ -324,3 +324,7 @@ function Register-WeatherData {
     end {
     }
 }
+while ($i -lt 7) {
+    "$((Get-Date).tostring())" | out-file -Append test.txt
+    Start-sleep -Seconds 10
+}
