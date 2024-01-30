@@ -1,4 +1,4 @@
-$scope = "read_station"
+#$scope = "read_station"
 $configPath = "/config/conf.json"
 $client_config_path = "/config/client.json"
 
@@ -26,6 +26,10 @@ function Invoke-RefreshToken {
     }
     
     process {
+
+        if ($env:debug) {
+            Write-Host "Refreshing tokens..."
+        }
 
         $env:netatmo_token = $tokens.token
         $env:netatmo_refresh_token = $tokens.refresh_token
@@ -324,7 +328,17 @@ function Register-WeatherData {
     end {
     }
 }
-while ($i -lt 7) {
-    "$((Get-Date).tostring())" | out-file -Append test.txt
-    Start-sleep -Seconds 10
+$i = 0
+while ($true) {
+    # the loop.
+
+    # interval should be 5 mins.
+
+    # magic happens here.
+
+    # refresh token every 10 loop.
+    if ($i -gt 9) {
+        Invoke-RefreshToken -configPath $configPath -client_config_path $client_config_path
+    }
+    $i++
 }
