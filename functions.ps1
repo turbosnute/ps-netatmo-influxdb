@@ -98,16 +98,16 @@ function Get-WeatherData {
 .PARAMETER Object
     The object to be checked for numeric type.
 .EXAMPLE
-    Is-Numeric 42
+    Test-IsNumeric 42
     # Output: True
 .EXAMPLE
-    Is-Numeric "123.5"
+    Test-IsNumeric "123.5"
     # Output: True
 .EXAMPLE
-    Is-Numeric "abc"
+    Test-IsNumeric "abc"
     # Output: False
 #>
-function Is-Numeric {
+function Test-IsNumeric {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
@@ -192,7 +192,7 @@ function Register-WeatherDataMesurement {
     process {
         $timestamp = $dashboard_data.time_utc
 
-        if ($false -eq (is-numeric -object $timestamp)) {
+        if ($false -eq (Test-IsNumeric -object $timestamp)) {
             # if timestamp is invalid, set the current time.
             $timestamp = [int][Math]::Floor([DateTime]::UtcNow.Subtract([DateTime]::Parse("1970-01-01")).TotalSeconds) 
         }
@@ -206,9 +206,9 @@ function Register-WeatherDataMesurement {
             )
 
             if ($skip -notcontains $name) {
-                if (($name -notmatch "^(?:time|date)_") -and (Is-Numeric -Object $value)) {
+                if (($name -notmatch "^(?:time|date)_") -and (Test-IsNumeric -Object $value)) {
                     $value = "{0:N1}" -f $value # one decimal, so that influxDB understands that it should store it as double.
-                } elseif ((Is-Numeric -Object $Value) -ne $true) {
+                } elseif ((Test-IsNumeric -Object $Value) -ne $true) {
                     # not numeric. Quote value so it doesn't get interpeted as other datatype.
                     $value = "`"$value`""
                 }
