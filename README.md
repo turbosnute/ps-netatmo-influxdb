@@ -1,8 +1,8 @@
 # PS-Netatmo-InfluxDB
 Netatmo to InfluxDB logger. Written in Powershell, running in Docker.
 
-This container is made to be able to run on Raspberry Pi OS.
-
+This container is made to be able to run on Raspberry Pi 5 (Raspberry Pi OS) and have also been tested om amd64.
+ 
 ## Build
 ```
 git clone git@github.com:turbosnute/ps-netatmo-influxdb.git
@@ -71,3 +71,6 @@ Copy the super user Token or create a new token with write and read access to th
 ## Start Logging
 
 Once the configuration is complete, PS-Netatmo-InfluxDB will start logging data from your Netatmo weather station to your InfluxDB database. It may take up to 5 minutes for the logging to begin.
+
+# Contributing
+Contributions are welcome! Feel free to open issues or pull requests on GitHub to suggest improvements, report bugs, or add new features to PS-Netatmo-InfluxDB. Please keep in mind that I work on this project during my limited free time. Your understanding and patience are greatly appreciated.
