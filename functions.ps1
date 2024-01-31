@@ -113,15 +113,19 @@ function Get-WeatherData {
 .EXAMPLE
     Test-IsNumeric "abc"
     # Output: False
+.EXAMPLE
+    Test-IsNumeric 1,000
+    # Output: True
 #>
 function Test-IsNumeric {
     [CmdletBinding()]
+    [OutputType([Boolean])]
     param (
         [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
         [Object]$Object
     )
-
-    $Object -is [System.Double] -or $Object -is [System.Int32] -or $Object -is [System.Int64] -or ($Object -match '^\d+(\.\d+)?$')
+    $Object = $Object -Replace ',','' # this also converts the object to string 
+    [Boolean]($Object -match '^-?\d+(\.\d+)?$')
 }
 
 <#
@@ -163,17 +167,25 @@ function Register-LinesToInfluxDB {
     process {
         $uri = "http://$Influx_Host/api/v2/write?org=$Influx_Org&bucket=$Influx_Bucket&precision=s"
         Write-Verbose "URI: $uri"
+        Write-Verbose "InfluxLine: $InfluxLine"
 
-        # Send POST request to InfluxDB API
-        $response = Invoke-RestMethod -Uri $uri -Method Post -Headers @{
+        $db_header = @{
             Authorization = "Token $Influx_Token"
             "Content-Type" = "text/plain"
-        } -Body ($lines -join "`n") -Verbose
+        }
 
+        if ($env:DEBUG) {
+            Write-Host "InfluxLine: $InfluxLine"
+        }
+        # Send POST request to InfluxDB API
+        $response = Invoke-RestMethod -Uri $uri -Method Post -Headers $db_header -Body $InfluxLine
+
+        <#
         # Check response status
         if ($response.statusCode -ne 204) {
             Write-Host "Error: Failed to insert data into InfluxDB. Status code: $($response.statusCode). For line '$InfluxLine'"
         }
+        #>
     }
 }
 
@@ -209,7 +221,7 @@ function Register-WeatherDataMesurement {
 
         $measurements = foreach ($property in $dashboard_data.PSObject.Properties) {
             $name = $property.name
-            $value = $property.value
+            $value = $property.value -Replace ',','' # Netatmo uses comma in CO2 levens. 1,050.0 and so, it messes with InfluxDB Line Protocol.
 
             $skip = @(
                 'time_utc'
@@ -226,10 +238,10 @@ function Register-WeatherDataMesurement {
                 @{
                     measurement = $name
                     tags = @{
-                        'module_id' = $module_id
-                        'module_name' = $module_name
-                        'home_id' = $home_id
-                        'home_name' = $home_name
+                        'module_id' = "$module_id"
+                        'module_name' = "$module_name"
+                        'home_id' = "$home_id"
+                        'home_name' = "$home_name"
                     }
                     fields = @{
                         value = $value
@@ -257,9 +269,8 @@ function Register-WeatherDataMesurement {
 
         # Actually write the data to influxdb
         foreach ($line in $lines) {
-            Register-LinesToInfluxDB -InfluxLine $line -Influx_Host $env:db_host -Influx_Org $env:db_org -Influx_Bucket $env:db_bucket $env:db_token
+            Register-LinesToInfluxDB -InfluxLine $line -Influx_Host $env:db_host -Influx_Org $env:db_org -Influx_Bucket $env:db_bucket -Influx_Token $env:db_token
         }
-
     }
     
     end {
