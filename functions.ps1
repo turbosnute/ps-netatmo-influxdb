@@ -237,9 +237,7 @@ function Register-WeatherDataMesurement {
                     timestamp = $timestamp
                 }
             }
-
-
-        }
+        } # End foreach
 
         # Convert data to InfluxDB Line Format
         $lines = foreach($measurement in $measurements) {
@@ -254,12 +252,12 @@ function Register-WeatherDataMesurement {
             $fields = $fields -join ','
 
             # line
-            "$($measurement.measurement),$tags $fields $timestamp"
+            "$($measurement.measurement),$tags $fields $($measurement.timestamp)"
         }
 
         # Actually write the data to influxdb
         foreach ($line in $lines) {
-            #Register-LinesToInfluxDB
+            Register-LinesToInfluxDB -InfluxLine $line -Influx_Host $env:db_host -Influx_Org $env:db_org -Influx_Bucket $env:db_bucket $env:db_token
         }
 
     }
@@ -284,10 +282,7 @@ function Register-WeatherData {
     }
     
     process {
-        if ($env:DEBUG -eq "true") {
-            Write-Host "WD: "
-            $weatherdata # @{body=; status=ok; time_exec=0.0487658977508545; time_server=1706709633}
-        }
+
         foreach ($station in $weatherdata.body.devices) {
             
                 $station_name = $station.station_name
@@ -319,11 +314,14 @@ function Register-WeatherData {
                     _id
                 #>
 
-                $module_id._id
-                $module_name.module_name
+                $module_id = $module._id
+                $module_name = $module.module_name
                 $dashboard_data = $module.dashboard_data
 
-                Register-WeatherDataMesurement -module_id $module_id -module_name $station_name -home_id $home_id -home_name $home_name -dashboard_data $dashboard_data
+                if ($dashboard_data) {
+                    # if there is any measurements, register it.
+                    Register-WeatherDataMesurement -module_id $module_id -module_name $module_name -home_id $home_id -home_name $home_name -dashboard_data $dashboard_data
+                }
             }
 
         }
@@ -368,7 +366,10 @@ function Test-TokenStatus {
         }
 
         $env:netatmo_token = $tokens.access_token
-
+        $env:db_host = $influxconfig.db_host
+        $env:db_org = $influxconfig.db_org
+        $env:db_bucket = $influxconfig.db_bucket
+        $env:db_token = $influxconfig.db_token
 
         [Boolean](
             $tokens.access_token -and
