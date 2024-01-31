@@ -77,6 +77,13 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>PS Netatmo InfluxDB</title>
         <link rel="stylesheet" href="simple.min.css">
+        
+        <!-- Favicon icons -->  
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">  
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">  
+        <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png">  
+
+        <!-- Scripts -->
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         <script>
             $(document).ready(function(){
