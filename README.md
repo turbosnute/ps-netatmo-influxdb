@@ -43,7 +43,7 @@ The easiest way to do this is through the InfluxDB Web UI. Navigate to http://se
 Copy the super user Token or create a new token with write and read access to the bucket.
 
 ### PS Netatmo InfluxDB Config
-
+![WebUi Screenshot](https://raw.githubusercontent.com/turbosnute/ps-netatmo-influxdb/main/doc/webui.png)
 1. **Access Configuration Page**:
 
    Navigate to `http://servername:8800` in your web browser. Replace `servername` with the hostname or IP address of the server where PS-Netatmo-InfluxDB is running.
@@ -74,3 +74,9 @@ Once the configuration is complete, PS-Netatmo-InfluxDB will start logging data 
 
 # Contributing
 Contributions are welcome! Feel free to open issues or pull requests on GitHub to suggest improvements, report bugs, or add new features to PS-Netatmo-InfluxDB. Please keep in mind that I work on this project during my limited free time. Your understanding and patience are greatly appreciated.
+
+# Help Wanted
+I need help on the following:
+1. **Multi platform build** - I need a easy way to build this project on arm64 and amd64 and publishing it on Docker Hub.
+2. **Make the Web UI look better** - Yeah...
+3. **Error handling** - I feel like there should be a little more error handling and feedback to the user. 
