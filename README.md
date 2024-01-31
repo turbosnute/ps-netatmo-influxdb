@@ -27,16 +27,47 @@ This script utilizes the Netatmo API to access data. To authenticate with the AP
 3. **Retrieve Client ID and Client Secret:** After creating the application, you'll be provided with a Client ID and Client Secret.
 
 ### InfluxDB Setup
-If you don't have a InfluxDB server already you can run one in docker:
+If you don't already have an InfluxDB server, you can easily run one using Docker:
 ```
 docker run -d --name=influxdb -p 8086:8086 --network "weather-net" -v influxdb-vol:/root/.influxdb2 influxdb:2.7.5
 ```
 
-If you already have a influxdb container running. Make sure it can be contacted from the ps-netatmo-influxdb container. One way to do this is to join it to the same network:
+If you already have an InfluxDB container running, ensure it's accessible from the PS-Netatmo-InfluxDB container by joining it to the same network:
 ```
 docker network connect "weather-net" influxdb
 ```
+Once your InfluxDB server is up and running, you'll need to set up an organization, a bucket, and an API token with write and read access to the bucket.
 
-...
+The easiest way to do this is through the InfluxDB Web UI. Navigate to http://servername:8086
+
+Copy the super user Token or create a new token with write and read access to the bucket.
+
 ### PS Netatmo InfluxDB Config
-...
+
+1. **Access Configuration Page**:
+
+   Navigate to `http://servername:8800` in your web browser. Replace `servername` with the hostname or IP address of the server where PS-Netatmo-InfluxDB is running.
+
+2. **Enter Netatmo Client ID and Client Secret**:
+
+   Enter your Netatmo client ID and client secret in the respective fields on the configuration page.
+
+3. **Authenticate with Netatmo API**:
+
+   Click on the "Authenticate Netatmo" button and follow the sign-in procedure to authenticate with the Netatmo API.
+
+4. **Enter InfluxDB Settings**:
+    Enter your InfluxDB hostname, organization, bucket and token in the respective fields.
+
+   
+5. **Test Connection**:
+
+   Click on the "Test Connection" button to verify if the settings are valid. Ensure that the connection to InfluxDB is successful.
+
+6. **Save InfluxDB Config**:
+
+   After successful validation of the settings, click on "Save InfluxDB Config" to save the configuration.
+
+## Start Logging
+
+Once the configuration is complete, PS-Netatmo-InfluxDB will start logging data from your Netatmo weather station to your InfluxDB database. It may take up to 5 minutes for the logging to begin.
