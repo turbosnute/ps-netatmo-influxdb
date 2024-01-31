@@ -1,7 +1,9 @@
 #
 # Functions
 #
-
+if ($env:DEBUG -eq "true") {
+    Write-Host "Loading functions..."
+}
 <#
 .SYNOPSIS
     This function is used to get a new token from Netatmo and update the config with it.
@@ -23,7 +25,7 @@ function Invoke-RefreshToken {
     
     process {
 
-        if ($env:debug) {
+        if ($env:DEBUG -eq "true") {
             Write-Host "Refreshing tokens..."
         }
 
@@ -50,6 +52,8 @@ function Invoke-RefreshToken {
 
         $res = Invoke-RestMethod @refresh_args
 
+        $env:netatmo_token = $res.access_token
+
         $res | ConvertTo-Json | Out-File -encoding utf8 -Path $configPath
         
         #
@@ -71,7 +75,6 @@ function Invoke-RefreshToken {
 #>
 function Get-WeatherData {
     [CmdletBinding()]
-    [OutputType([int])]
     param(
         [Parameter(Mandatory=$true)][string]$Token
     )
@@ -83,8 +86,12 @@ function Get-WeatherData {
             'Authorization' = "Bearer $Token"
         }
 
-        $data = Invoke-RestMethod -Uri $uri -Headers $headers
-
+        $data = try {
+            Invoke-RestMethod -Uri $uri -Headers $headers -ErrorAction Stop
+        } catch {
+            $_.ErrorDetails.Message | ConvertFrom-Json
+        }
+        
         $data
     }   
 }
@@ -190,6 +197,9 @@ function Register-WeatherDataMesurement {
     }
     
     process {
+        if ($env:DEBUG -eq "true") {
+            Write-Host "Registering data from module '$module_name'"
+        }
         $timestamp = $dashboard_data.time_utc
 
         if ($false -eq (Test-IsNumeric -object $timestamp)) {
@@ -267,21 +277,30 @@ function Register-WeatherDataMesurement {
 function Register-WeatherData {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true)][string]$weatherdata
+        [Parameter(Mandatory=$true)]$weatherdata
     )
     
     begin {
     }
     
     process {
+        if ($env:DEBUG -eq "true") {
+            Write-Host "WD: "
+            $weatherdata # @{body=; status=ok; time_exec=0.0487658977508545; time_server=1706709633}
+        }
         foreach ($station in $weatherdata.body.devices) {
-            <#
-                station_name
-                station_id
-                home_name
-                home_id
-                dashboard_data
-            #>
+            
+                $station_name = $station.station_name
+                $station_id = $station._id
+                $home_name = $station.home_name
+                $home_id = $station.home_id
+                $dashboard_data = $station.dashboard_data
+
+                if ($env:DEBUG -eq "true") {
+                    Write-Host "Registering weather data for station '$station_name'"
+                }
+
+                Register-WeatherDataMesurement -module_id $station_id -module_name $station_name -home_id $home_id -home_name $home_name -dashboard_data $dashboard_data
 
             foreach ($module in $station.modules) {
                 <#
@@ -299,6 +318,12 @@ function Register-WeatherData {
                     type
                     _id
                 #>
+
+                $module_id._id
+                $module_name.module_name
+                $dashboard_data = $module.dashboard_data
+
+                Register-WeatherDataMesurement -module_id $module_id -module_name $station_name -home_id $home_id -home_name $home_name -dashboard_data $dashboard_data
             }
 
         }
@@ -324,9 +349,23 @@ function Test-TokenStatus {
     )
     
     process {
-        $tokens = Get-Content -Path $ConfigPath | ConvertFrom-Json
-        $client = Get-Content -Path $client_config_path | ConvertFrom-Json
-        $influxconfig = Get-Content -Path $influx_config_path | ConvertFrom-Json
+        $tokens = if (Test-Path -Path $ConfigPath) {
+            Get-Content -Path $ConfigPath | ConvertFrom-Json
+        } else {
+            $null 
+        }
+
+        $client = if (Test-Path -Path $client_config_path) {
+            Get-Content -Path $client_config_path | ConvertFrom-Json
+        } else {
+            $null 
+        }
+
+        $influxconfig = if (Test-Path -Path $influx_config_path) {
+            Get-Content -Path $influx_config_path | ConvertFrom-Json
+        } else {
+            $null 
+        }
 
         $env:netatmo_token = $tokens.access_token
 
