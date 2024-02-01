@@ -31,7 +31,7 @@
     /* InfluxDB Config */
     $db_config_path = "/config/influxdb.json";
 
-    $db_host = "";
+    $db_host = "influxdb:8086";
     $db_org = "";
     $db_token = "";
     $db_bucket = "";
@@ -77,7 +77,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>PS Netatmo InfluxDB</title>
         <link rel="stylesheet" href="simple.min.css">
-        
+
         <!-- Favicon icons -->  
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">  
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">  
