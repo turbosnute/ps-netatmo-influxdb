@@ -161,13 +161,13 @@ function Register-LinesToInfluxDB {
         [Parameter(Mandatory=$true)][string]$Influx_Org,
         [Parameter(Mandatory=$true)][string]$Influx_Bucket,
         [Parameter(Mandatory=$true)][string]$Influx_Token,
-        [Parameter(Mandatory=$true)][string]$InfluxLine
+        [Parameter(Mandatory=$true)][string[]]$InfluxLine
     )
     
     process {
         $uri = "http://$Influx_Host/api/v2/write?org=$Influx_Org&bucket=$Influx_Bucket&precision=s"
-        Write-Verbose "URI: $uri"
-        Write-Verbose "InfluxLine: $InfluxLine"
+        #Write-Verbose "URI: $uri"
+        #Write-Verbose "InfluxLine: $InfluxLine"
 
         $db_header = @{
             Authorization = "Token $Influx_Token"
@@ -175,10 +175,12 @@ function Register-LinesToInfluxDB {
         }
 
         if ($env:DEBUG) {
-            Write-Host "InfluxLine: $InfluxLine"
+            foreach ($line in $InfluxLine) {
+                Write-Host "InfluxLine: $line"
+            }
         }
         # Send POST request to InfluxDB API
-        $response = Invoke-RestMethod -Uri $uri -Method Post -Headers $db_header -Body $InfluxLine
+        $null = Invoke-RestMethod -Uri $uri -Method Post -Headers $db_header -Body ($InfluxLine -join "`n")
 
         <#
         # Check response status
@@ -230,7 +232,7 @@ function Register-WeatherDataMesurement {
             if ($skip -notcontains $name) {
                 if (($name -notmatch "^(?:time|date)_") -and (Test-IsNumeric -Object $value)) {
                     $value = "{0:N1}" -f $value # one decimal, so that influxDB understands that it should store it as double.
-                } elseif ((Test-IsNumeric -Object $Value) -ne $true) {
+                } elseif ((Test-IsNumeric -Object $value) -ne $true) {
                     # not numeric. Quote value so it doesn't get interpeted as other datatype.
                     $value = "`"$value`""
                 }
@@ -268,9 +270,9 @@ function Register-WeatherDataMesurement {
         }
 
         # Actually write the data to influxdb
-        foreach ($line in $lines) {
-            Register-LinesToInfluxDB -InfluxLine $line -Influx_Host $env:db_host -Influx_Org $env:db_org -Influx_Bucket $env:db_bucket -Influx_Token $env:db_token
-        }
+        #foreach ($line in $lines) {
+            Register-LinesToInfluxDB -InfluxLine $lines -Influx_Host $env:db_host -Influx_Org $env:db_org -Influx_Bucket $env:db_bucket -Influx_Token $env:db_token
+        #}
     }
     
     end {

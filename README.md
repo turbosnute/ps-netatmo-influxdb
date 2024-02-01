@@ -13,7 +13,7 @@ docker build -t "ps-netatmo-influxdb" .
 ## Run
 ```
 docker network create weather-net
-docker run -d -p 8800:80 -v psnetatmo:/config --name "ps-netatmo-influxdb" --network "weather-net" ps-netatmo-influxdb 
+docker run -d -p 8800:8800 -v psnetatmo:/config --name "ps-netatmo-influxdb" --network "weather-net" ps-netatmo-influxdb 
 ```
 
 ## Setup

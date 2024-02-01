@@ -1,4 +1,8 @@
 FROM php:8.3-apache-bullseye
+# Configure Apache to listen on port 8800  
+RUN sed -i '/Listen 80/c\Listen 8800' /etc/apache2/ports.conf  
+# Inform Docker that the container is listening on port 8800  
+EXPOSE 8800
 RUN apt-get update && \
     apt-get install -y wget && \
     apt-get install -y supervisor && \
