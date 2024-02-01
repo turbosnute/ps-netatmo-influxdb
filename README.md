@@ -77,6 +77,6 @@ Contributions are welcome! Feel free to open issues or pull requests on GitHub t
 
 # Help Wanted
 I need help on the following:
-1. **Multi platform build** - I need a easy way to build this project on arm64 and amd64 and publishing it on Docker Hub.
+1. **Multi platform build** - I need a easy way to build this project on arm64 and amd64 and publishing it on Docker Hub. GH actions?
 2. **Make the Web UI look better** - Yeah...
 3. **Error handling** - I feel like there should be a little more error handling and feedback to the user. 
