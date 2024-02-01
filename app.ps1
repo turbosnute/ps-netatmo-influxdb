@@ -26,16 +26,21 @@ while ($true) {
 
     # check if token is available.
     if (Test-TokenStatus -ConfigPath $configPath -client_config_path $client_config_path -influx_config_path $influx_config_path) {
+        # Air Quality Data (for locations in Norway)
+        if (($env:AirLat) -and ($env:AirLon)) {
+            # Register air quality data from NILU. Limited to locations in Norway.
+            Register-NorAirQuality -latitude $env:AirLat -longitude $env:AirLon
+        }
 
         # Get weather data from netatmo:
-        if ($env:DEBUG -eq $true) {
+        if ($env:DEBUG -eq "true") {
             Write-Host "Getting Weatherdata..."
         }
         $weather_data = Get-WeatherData -Token $env:netatmo_token
 
         if ((-not $weather_data.error) -and ($null -ne $weather_data)) {
             # if no error:
-            if ($env:DEBUG -eq $true) {
+            if ($env:DEBUG -eq "true") {
                 Write-Host " Got Weatherdata."
             }
             Register-WeatherData -weatherdata $weather_data
@@ -62,7 +67,6 @@ while ($true) {
                 Write-Host "Error $($weather_data.error.Message)"
             }
         }
-
 
     } else {
         Write-Host "Configuration is incomplete. Navigate your web browser to http://servername:8800/ and setup the connection to netatmo and influxdb. Waiting 5 minutes until next try."
