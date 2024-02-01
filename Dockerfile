@@ -16,4 +16,4 @@ RUN chmod 700 /powershell/install-pwsh.sh && \
 COPY ./supervisord.conf /etc/supervisor/conf.d/
 COPY ./web /var/www/html
 COPY app.ps1 functions.ps1 /app/
-CMD ["/usr/bin/supervisord"]
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]  
