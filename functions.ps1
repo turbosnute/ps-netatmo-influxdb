@@ -394,3 +394,85 @@ function Test-TokenStatus {
         )
     }
 }
+
+#
+# Air Quality Measurements available in Norway
+#
+
+<#
+.SYNOPSIS
+    Retrieves air quality data for a specified location (limited to locations inside Norway) and records it to an InfluxDB database.
+
+.DESCRIPTION
+    The `Register-NorAirQuality` function fetches air quality information from an API using given 
+    latitude and longitude coordinates. It then processes this information and inserts it into 
+    an InfluxDB database as time-series data.
+
+.PARAMETER latitude
+    The latitude of the location for which to retrieve air quality data. This is a mandatory parameter.
+
+.PARAMETER longitude
+    The longitude of the location for which to retrieve air quality data. This is a mandatory parameter.
+
+.EXAMPLE
+    PS> Register-NorAirQuality -latitude "59.9139" -longitude "10.7522"
+
+    This example retrieves air quality data for Oslo, Norway and inserts it into the configured InfluxDB database.
+
+
+.OUTPUTS
+    Output type is not explicitly returned but the function outputs to an InfluxDB database.
+
+.NOTES
+    Requires pre-configured environmental variables for InfluxDB connection: db_host, db_org, db_bucket, and db_token.
+    Functions calls to `Register-LinesToInfluxDB` are made within the process block to handle database insertion.
+
+.LINK
+    For more information on the used API, visit the NILU (Norwegian Institute for Air Research) API documentation page.
+
+#>
+function Register-NorAirQuality {
+    [CmdletBinding()]
+    [OutputType([object])]
+    param(
+        [Parameter(Mandatory=$true)][string]$latitude,
+        [Parameter(Mandatory=$true)][string]$longitude
+    )
+    
+    begin {
+    }
+    
+    process {
+        $uri = "https://api.nilu.no/aq/utd/${latitude}/${longitude}/3"
+
+        try {
+            $result = Invoke-RestMethod -Uri $uri
+        } catch [System.Net.WebException] {  
+            # Handle web-specific exceptions (e.g., network errors, protocol errors)  
+            Write-Warning "A web exception occurred: $($_.Exception.Message)"  
+            $result = $null  
+        } catch {
+            $result = $null
+        }
+
+        foreach ($aq in $result) {
+            if ($aq.toTime) {
+                $unix_timestamp = [int][Math]::Floor((get-date $aq.toTime).Subtract([DateTime]::Parse("1970-01-01")).TotalSeconds)
+            } else {
+                # use current
+                $unix_timestamp = [int][Math]::Floor([DateTime]::UtcNow.Subtract([DateTime]::Parse("1970-01-01")).TotalSeconds) 
+            }
+            $unit = $aq.unit -replace ' ','\ '
+            $valie = "{0:N2}" -f $aq.value 
+            $line = "AirQuality,component=$($aq.component) value=$($aq.value),unit=`"$unit`" $unix_timestamp"
+
+            if ($env:DEBUG -eq "true") {
+                Write-Host $line
+            }
+            Register-LinesToInfluxDB -InfluxLine $line -Influx_Host $env:db_host -Influx_Org $env:db_org -Influx_Bucket $env:db_bucket -Influx_Token $env:db_token
+        }
+    }
+    
+    end {
+    }
+}
