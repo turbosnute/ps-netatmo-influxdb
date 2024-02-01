@@ -4,6 +4,7 @@ Netatmo to InfluxDB logger. Written in Powershell, running in Docker.
 This container is made to be able to run on Raspberry Pi 5 (Raspberry Pi OS) and have also been tested om amd64.
  
 ## Build
+If you want to build the container yourself.
 ```
 git clone git@github.com:turbosnute/ps-netatmo-influxdb.git
 cd ps-netatmo-influxdb
@@ -11,9 +12,16 @@ docker build -t "ps-netatmo-influxdb" .
 ```
 
 ## Run
+Run the official image of the container:
 ```
 docker network create weather-net
-docker run -d -p 8800:8800 -v psnetatmo:/config --name "ps-netatmo-influxdb" --network "weather-net" ps-netatmo-influxdb 
+docker run -d -p 8800:8800 -v psnetatmo:/config --name "ps-netatmo-influxdb" --network "weather-net" turbosnute/ps-netatmo-influxdb
+```
+
+or run your local image:
+```
+docker network create weather-net
+docker run -d -p 8800:8800 -v psnetatmo:/config --name "ps-netatmo-influxdb" --network "weather-net" ps-netatmo-influxdb
 ```
 
 ## Setup
