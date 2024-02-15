@@ -85,5 +85,5 @@ Contributions are welcome! Feel free to open issues or pull requests on GitHub t
 
 # Help Wanted
 I need help on the following:
-1. **Make the Web UI look better** - Yeah...
+1. **Make the Web UI look better** - Yeah, webui is not my strength.
 2. **Error handling** - I feel like there should be a little more error handling and feedback to the user. 
