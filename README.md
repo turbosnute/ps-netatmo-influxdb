@@ -1,7 +1,7 @@
 # PS-Netatmo-InfluxDB
 Netatmo to InfluxDB logger. Written in Powershell, running in Docker.
 
-This container is made to be able to run on Raspberry Pi 5 (Raspberry Pi OS) and have also been tested om amd64.
+This container is made to be able to run on Raspberry Pi 5 (Raspberry Pi OS) and have also been tested on amd64.
  
 ## Build
 If you want to build the container yourself.
